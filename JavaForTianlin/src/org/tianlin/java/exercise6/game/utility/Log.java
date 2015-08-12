@@ -193,7 +193,7 @@ public class Log {
 					e(TAG, "Cannot create log directory at %s, please check access rights!", dir.getAbsolutePath());
 					return null;
 				}
-				i(TAG, "Create log directory at %s", dir.getAbsolutePath());
+				w(TAG, "Create log directory at %s", dir.getAbsolutePath());
 			}
 
 			File logFile = new File(dir, filename);

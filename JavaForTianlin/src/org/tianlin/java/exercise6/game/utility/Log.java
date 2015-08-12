@@ -70,7 +70,8 @@ public class Log {
 	public static void uninit() {
 		try {
 			/*
-			 * [WORKAROUND] wait a bit time for logging thread to finish work......
+			 * [WORKAROUND] wait a bit time for logging thread to finish
+			 * work......
 			 */
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
@@ -242,8 +243,9 @@ public class Log {
 	 */
 	private static String buildLogString(String level, String TAG, String format, Object... args) {
 		StringBuilder builder = new StringBuilder();
-		builder.append('[').append(LOG_DATE_FORMAT.format(new Date())).append("]/").append(level).append("  -  [")
-				.append(TAG).append(']').append(String.format(format, args));
+		builder.append('[').append(LOG_DATE_FORMAT.format(new Date())).append("]/").append(level).append('/')
+				.append(Thread.currentThread().getName()).append("  -  [").append(TAG).append(']')
+				.append(String.format(format, args));
 		return builder.toString();
 	}
 }

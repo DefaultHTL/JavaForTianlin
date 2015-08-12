@@ -14,8 +14,9 @@ public class Log {
 	private static final DateFormat LOG_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 	private static final DateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd-hhmmss");
 	private static final boolean DEBUG = true;
-	private static final String LEVEL_INFO = "I";
 	private static final String LEVEL_DEBUG = "D";
+	private static final String LEVEL_INFO = "I";
+	private static final String LEVEL_WARNING = "W";
 	private static final String LEVEL_ERROR = "E";
 
 	private static final String LOG_DIR = "log";
@@ -23,6 +24,16 @@ public class Log {
 
 	private static LogType typeForReopen = LogType.Server;
 	private static final int LOG_RETRY_TIMES = 3;
+
+	/*
+	 * Record debug message. It's printed to screen only if DEBUG is true.
+	 */
+	public static void d(String TAG, String format, Object... args) {
+		if (DEBUG) {
+			log2Screen(buildLogString(LEVEL_DEBUG, TAG, format, args));
+			log2file(buildLogString(LEVEL_DEBUG, TAG, format, args));
+		}
+	}
 
 	/*
 	 * Record game info. Always use this to record game routines.
@@ -33,12 +44,11 @@ public class Log {
 	}
 
 	/*
-	 * Record debug message. It's printed to screen only if DEBUG is true.
+	 * Record running warnings.
 	 */
-	public static void d(String TAG, String format, Object... args) {
-		if (DEBUG)
-			log2Screen(buildLogString(LEVEL_DEBUG, TAG, format, args));
-		log2file(buildLogString(LEVEL_DEBUG, TAG, format, args));
+	public static void w(String TAG, String format, Object... args) {
+		log2Screen(buildLogString(LEVEL_WARNING, TAG, format, args));
+		log2file(buildLogString(LEVEL_WARNING, TAG, format, args));
 	}
 
 	/*
@@ -55,11 +65,11 @@ public class Log {
 	public static void init(LogType type) {
 		typeForReopen = type;
 		if (fileLogger != null) {
-			e(TAG, "File logger already initialized!");
+			w(TAG, "File logger already initialized!");
 			return;
 		}
 		String fileName = String.format("%s-%s.txt", type.toString(), FILE_DATE_FORMAT.format(new Date()));
-		d(TAG, "Initializing file logger: %s", fileName);
+		i(TAG, "Initializing file logger: %s", fileName);
 		fileLogger = new FileLogger(fileName);
 		new Thread(fileLogger).start();
 	}
@@ -78,7 +88,7 @@ public class Log {
 			e(TAG, "Main thread is interrupted!");
 		}
 		if (fileLogger != null) {
-			d(TAG, "Uninitializing file logger: %s", fileLogger.filename);
+			i(TAG, "Uninitializing file logger: %s", fileLogger.filename);
 			fileLogger.shutdown = true;
 			fileLogger = null;
 		}
@@ -99,7 +109,7 @@ public class Log {
 						}
 						Thread.sleep(100);
 						for (int i = 1; i <= 50; i++) {
-							Log.e(TAG, "[StressTest] I'm %s again, count %d", Thread.currentThread().getName(), i);
+							Log.w(TAG, "[StressTest] I'm %s again, count %d", Thread.currentThread().getName(), i);
 							Thread.sleep(10);
 						}
 					} catch (InterruptedException e) {
@@ -144,7 +154,7 @@ public class Log {
 		public void run() {
 			File log = createAndOpenFile();
 			if (log == null) {
-				e(TAG, "Trying to open file %s failed, check your access right please!", filename);
+				w(TAG, "Open log file %s failed, log to file disabled!", filename);
 				fileLogger = null;
 				messageQueue.clear();
 				return;
@@ -180,19 +190,19 @@ public class Log {
 			File dir = new File(LOG_DIR);
 			if (!dir.exists()) {
 				if (!dir.mkdir()) {
-					e(TAG, "Cannot create directory at %s, please check access rights!", dir.getAbsolutePath());
+					e(TAG, "Cannot create log directory at %s, please check access rights!", dir.getAbsolutePath());
 					return null;
 				}
-				d(TAG, "Create directory at %s", dir.getAbsolutePath());
+				i(TAG, "Create log directory at %s", dir.getAbsolutePath());
 			}
 
 			File logFile = new File(dir, filename);
 			if (logFile.exists()) {
 				// should never happens
 				if (logFile.delete()) {
-					d(TAG, "Delete duplicated log file at %s, WTF!!!", logFile.getAbsolutePath());
+					w(TAG, "Delete duplicated log file at %s, how could this happen?!", logFile.getAbsolutePath());
 				} else {
-					e(TAG, "Cannot delete duplicated log file!!");
+					e(TAG, "Cannot delete duplicated log file, please check access rights!");
 					return null;
 				}
 			}
@@ -201,7 +211,7 @@ public class Log {
 				logFile.createNewFile();
 				i(TAG, "Create log file %s", logFile.getAbsolutePath());
 			} catch (IOException e) {
-				e(TAG, "Cannot create file at %s, please check access rights!", logFile.getAbsolutePath());
+				e(TAG, "Cannot create log file at %s, please check access rights!", logFile.getAbsolutePath());
 				return null;
 			}
 
@@ -218,7 +228,7 @@ public class Log {
 					return;
 				log2Screen(buildLogString(LEVEL_DEBUG, TAG, "Failed adding message to queue, retry: %d", retry));
 			}
-			log2Screen(buildLogString(LEVEL_ERROR, TAG, "Failed adding message to queue, it will be ignored."));
+			log2Screen(buildLogString(LEVEL_WARNING, TAG, "Failed adding message to queue, it will be ignored."));
 		}
 	}
 

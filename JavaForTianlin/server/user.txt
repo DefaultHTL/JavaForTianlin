@@ -1,0 +1,2 @@
+James;james123;100
+Allen;allen321;50

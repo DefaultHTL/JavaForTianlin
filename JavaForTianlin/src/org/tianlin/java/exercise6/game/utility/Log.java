@@ -22,7 +22,7 @@ public class Log {
 	private static final String LOG_DIR = "log";
 	private static FileLogger fileLogger = null;
 
-	private static LogType typeForReopen = LogType.Server;
+	private static LogType logType = LogType.Server;
 	private static final int LOG_RETRY_TIMES = 3;
 
 	/*
@@ -63,7 +63,7 @@ public class Log {
 	 * Server or client side should initial once in one game.
 	 */
 	public static void init(LogType type) {
-		typeForReopen = type;
+		logType = type;
 		if (fileLogger != null) {
 			w(TAG, "File logger already initialized!");
 			return;
@@ -130,7 +130,7 @@ public class Log {
 			 * re-open for normal logging
 			 */
 			Thread.sleep(2000);
-			init(typeForReopen);
+			init(logType);
 			/*
 			 * sleep 500 ms here to prevend closing
 			 */
@@ -236,7 +236,8 @@ public class Log {
 	 * Print the log message on screen.
 	 */
 	private static void log2Screen(String msg) {
-		System.out.println(msg);
+		if (logType != LogType.NoConsole)
+			System.out.println(msg);
 	}
 
 	/*

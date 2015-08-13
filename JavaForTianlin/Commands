@@ -1,0 +1,12 @@
+Format:
+
+COMMAND - LENGTH - CONTENT
+1 byte  - 1 byte - <length>
+
+Command List:
+0x01(LOGIN)				1
+LENGTH					-
+LENGTH_OF_USERNAME		1
+USERNAME				-
+LENGTH_OF_PASSWORD		1
+PASSWORD				-

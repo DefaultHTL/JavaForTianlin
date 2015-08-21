@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,16 +48,16 @@ public class GameServer {
 			Log.e(TAG, "Error parsing user info, shutting down server!!");
 			return;
 		}
-		
-		// TODO
 
-		serverHandler = new ServerHandler();
+		// TODO server global initializations
+
+		serverHandler = new ServerHandler(this);
 		serverThread = new Thread(serverHandler);
 		serverThread.start();
 	}
 
 	/*
-	 * parsing user info from file
+	 * parsing user info from file TODO change to xml file
 	 */
 	private boolean parsingUserInfos(File user) {
 		if (!user.exists()) {
@@ -103,27 +105,65 @@ public class GameServer {
 	}
 
 	/*
+	 * Authenticate username and password for handlers
+	 */
+	public boolean authenticate(String username, String password) {
+		UserInfo info = userInfos.get(username);
+		if (info != null && info.getPassword().equals(password)) {
+			Log.i(TAG, "Authenticate succeed, username: %s and password: %s.", username, password);
+			return true;
+		}
+
+		Log.i(TAG, "Authenticate failed, username: %s and password: %s.", username, password);
+		return false;
+	}
+
+	/*
 	 * Retrieve server thread for main thread to be joined to.
 	 */
 	public Thread getServerThread() {
 		return serverThread;
 	}
 
+	/*
+	 * Running on server side listening connections.
+	 */
 	public static class ServerHandler implements Runnable {
+		private GameServer server = null;
+
+		public ServerHandler(GameServer server) {
+			this.server = server;
+		}
 
 		@Override
 		public void run() {
-			Log.i(TAG, "------>> Server Start <<------");
-			// TODO Auto-generated method stub
+			/*
+			 * create server socket
+			 */
+			ServerSocket serverSocket = null;
 			try {
-				Log.i(TAG, "Wait 3s then exit for test...");
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			Log.i(TAG, "------>> Server Stop <<------");
-		}
+				Log.i(TAG, "------>> Server Start <<------");
+				serverSocket = new ServerSocket(PORT);
+				Log.i(TAG, "Start listening on port %d", serverSocket.getLocalPort());
 
+				while (true) {
+					Socket clientSocket = serverSocket.accept();
+					Log.i(TAG, "Connection established from %s", clientSocket.getInetAddress().getHostAddress());
+					new Thread(new ClientHandler(server, clientSocket)).start();
+				}
+
+			} catch (IOException e) {
+				Log.e(TAG, "Error opening server socket on port %d, Exception: %s", PORT, e.getMessage());
+			} finally {
+				if (serverSocket != null) {
+					try {
+						serverSocket.close();
+					} catch (IOException e) {
+						Log.e(TAG, "IOException when closing server: %s", e.getMessage());
+					}
+				}
+				Log.i(TAG, "------>> Server Stop <<------");
+			}
+		}
 	}
 }

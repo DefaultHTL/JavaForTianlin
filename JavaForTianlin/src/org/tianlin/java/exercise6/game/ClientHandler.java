@@ -5,7 +5,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.tianlin.java.exercise6.game.utility.CoDec;
 import org.tianlin.java.exercise6.game.utility.Log;
+import org.tianlin.java.exercise6.game.utility.CoDec.DecodeResult;
+import org.tianlin.java.exercise6.game.utility.CommandEnum;
 
 /*
  * Running on server side to handle a client connection.
@@ -29,18 +32,23 @@ public class ClientHandler implements Runnable {
 			DataInputStream input = new DataInputStream(client.getInputStream());
 			DataOutputStream output = new DataOutputStream(client.getOutputStream());
 
-			/*
-			 * authenticate or register
-			 */
+			boolean exit = false;
 			int length = 0;
-			length = input.read(buffer);
-			Log.d(TAG, "Read %d bytes", length);
-			String username = new String(buffer, 3, buffer[2]);
-			String password = new String(buffer, 4 + buffer[2], buffer[3 + buffer[2]]);
-			if (server.authenticate(username, password)) {
-				output.writeUTF("OK");
-			} else {
-				output.writeUTF("Fail");
+			DecodeResult result = null;
+			while (!exit) {
+				length = input.read(buffer);
+				/*
+				 * workaround for infinite receiving EOF when client closed
+				 */
+				if (length == -1) {
+					Log.w(TAG, "EOF reached, is client closed?");
+					break;
+				}
+				Log.d(TAG, "Receive %d bytes.", length);
+				result = CoDec.decode(buffer, length);
+				if (result.valid) {
+					exit = handleCommands(result, input, output);
+				}
 			}
 
 			output.close();
@@ -59,4 +67,30 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
+	/*
+	 * we don't check arguments here because they were already guaranteed in
+	 * decoder
+	 */
+	private boolean handleCommands(DecodeResult result, DataInputStream input, DataOutputStream output)
+			throws IOException {
+		boolean exit = false;
+		byte[] sendBack = null;
+		switch (result.command) {
+		case SignIn:
+			boolean authResult = server.authenticate(result.arguments[0].toString(), result.arguments[1].toString());
+			sendBack = CoDec.encode(CommandEnum.SignInResult, authResult);
+			output.write(sendBack);
+			if (authResult) {
+				// TODO succeed, do other things: record session and so on
+			}
+			break;
+		case ClientExit:
+			Log.i(TAG, "Client says bye-bye, shutting down...");
+			exit = true;
+			break;
+		default:
+			Log.w(TAG, "Ignore unexpected command: %s", result.command.name());
+		}
+		return exit;
+	}
 }

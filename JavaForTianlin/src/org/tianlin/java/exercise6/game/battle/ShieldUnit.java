@@ -1,4 +1,5 @@
-package org.tianlin.java.exercise6.game;
+package org.tianlin.java.exercise6.game.battle;
+
 public class ShieldUnit extends Unit {
 
 	public ShieldUnit(String name, double attack, double defense, double life) {

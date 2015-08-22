@@ -1,4 +1,4 @@
-package org.tianlin.java.exercise6.game;
+package org.tianlin.java.exercise6.game.battle;
 import java.util.LinkedList;
 
 public class Unit {

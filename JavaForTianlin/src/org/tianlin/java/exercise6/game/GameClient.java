@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import org.tianlin.java.exercise6.game.battle.UnitFight;
 import org.tianlin.java.exercise6.game.utility.CoDec;
 import org.tianlin.java.exercise6.game.utility.CommandEnum;
 import org.tianlin.java.exercise6.game.utility.Log;
@@ -21,12 +22,13 @@ public class GameClient {
 
 	// TODO change buffer to below buffer in encoding methods
 	private byte[] buffer = new byte[BUFFER_LENGTH];
+	private UserInfo userInfo = null;
 	/*
 	 * menu list
 	 */
 
 	private enum MenuEnum {
-		None, Login, Exit,
+		None, Login, Exit, UserPage
 	}
 
 	public void run() {
@@ -106,12 +108,11 @@ public class GameClient {
 			p("                                3. Exit\n");
 			p("\n********************************************************************************\n");
 			choose = getUserInputInRange(1, 3, scanner);
-			Log.i(TAG, "User choice: %d", choose);
 			switch (choose) {
 			case 1:
 				if (processSignIn(input, output, scanner)) {
-					// TODO change next
-					next = MenuEnum.None;
+					userInfo = getUserInfo(input, output);
+					next = MenuEnum.UserPage;
 				} else {
 					next = MenuEnum.Exit;
 				}
@@ -129,6 +130,23 @@ public class GameClient {
 			p("\nBye-bye!\n");
 			sendClientExit(output);
 			next = MenuEnum.None;
+			break;
+		case UserPage:
+			p("   Make your choice\n");
+			p("     1. Start random game\n");
+			p("     2. Exit\n");
+			choose = getUserInputInRange(1, 2, scanner);
+			switch (choose) {
+			case 1:
+				// TODO before random game
+				processRandomGame(input, output, scanner);
+				// TODO after random game
+				next = MenuEnum.UserPage;
+				break;
+			case 2:
+				next = MenuEnum.Exit;
+				break;
+			}
 			break;
 		default:
 			next = MenuEnum.None;
@@ -154,6 +172,17 @@ public class GameClient {
 		return response;
 	}
 
+	private boolean processRandomGame(DataInputStream input, DataOutputStream output, Scanner scanner) {
+		// TODO get enemy from server
+		// UnitFight.fight(userInfo.getUnit)
+		return true;
+	}
+
+	private UserInfo getUserInfo(DataInputStream input, DataOutputStream output) {
+		// TODO
+		return null;
+	}
+
 	private void sendClientExit(DataOutputStream output) throws IOException {
 		output.write(CoDec.encode(CommandEnum.ClientExit));
 	}
@@ -177,6 +206,7 @@ public class GameClient {
 			}
 		} while (true);
 
+		Log.i(TAG, "User choice: %d", n);
 		return n;
 	}
 

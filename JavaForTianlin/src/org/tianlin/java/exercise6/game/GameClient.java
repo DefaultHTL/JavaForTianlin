@@ -19,6 +19,7 @@ public class GameClient {
 	private static final int SERVER_PORT = 30001;
 	private static final int BUFFER_LENGTH = 32; // TODO is it too small?
 
+	// TODO change buffer to below buffer in encoding methods
 	private byte[] buffer = new byte[BUFFER_LENGTH];
 	/*
 	 * menu list
@@ -150,7 +151,7 @@ public class GameClient {
 		DecodeResult result = CoDec.decode(buffer, length);
 		boolean response = result.valid && (boolean) result.arguments[0];
 		p("Authentication %s!\n", response ? "succeed" : "fail");
-		return true;
+		return response;
 	}
 
 	private void sendClientExit(DataOutputStream output) throws IOException {

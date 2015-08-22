@@ -24,7 +24,15 @@ public class CoDec {
 			return new DecodeResult();
 		}
 
-		if (!verifyChecksum(bytes)) {
+		if (DEBUG) {
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < length; i++) {
+				builder.append(String.format("0x%02X, ", bytes[i]));
+			}
+			Log.d(TAG, "Decode command { %s }", builder.substring(0, builder.length() - 2));
+		}
+
+		if (!verifyChecksum(bytes, length)) {
 			Log.w(TAG, "Checksum failure when decoding.");
 			return new DecodeResult();
 		}
@@ -223,10 +231,10 @@ public class CoDec {
 	/*
 	 * verify checksum
 	 */
-	private static boolean verifyChecksum(byte[] b) {
+	private static boolean verifyChecksum(byte[] b, int length) {
 		byte c = 0;
-		for (byte b2 : b) {
-			c ^= b2;
+		for (int i = 0; i < length; i++) {
+			c ^= b[i];
 		}
 		return c == 0;
 	}

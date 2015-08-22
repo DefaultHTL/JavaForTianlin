@@ -27,11 +27,69 @@ public class UnitFight {
 	final static int UNIT_LIFE = 35;
 	final static int RANGE_LIFE = 30;
 	final static int SHIELD_LIFE = 40;
+	private static Scanner scanner1;
+	private static Scanner scanner2;
+
 
 	public static void main(String[] args) {
 		fightTest2();
 	}
 
+	public static boolean fight(LinkedList<Unit> units1) {
+		LinkedList<Unit> units2 = new LinkedList<Unit>();
+
+		createUnits(units2);
+
+		int count = 0;
+		
+		while (!units1.isEmpty() && !units2.isEmpty()) {
+
+			count++;
+			
+			System.out.println("当前为第" + count + "回合");
+			System.out.println("第一队剩余" + units1.size() + "人， 第二队" + units2.size() +"人");
+
+			System.out.println("输入单位编号 [1 ~ " + units1.size() + "]:");
+			scanner1 = new Scanner(System.in);
+			int a = scanner1.nextInt() - 1;
+			
+			System.out.println("输入敌人编号:[1 ~ " + units2.size() + "]:");
+			scanner2 = new Scanner(System.in);
+			int foe = scanner2.nextInt() - 1;
+			
+			units1.get(a).Attack(units2.get(foe), units1, units2);
+				
+			if (units2.get(foe).life <= 0) {
+				units2.remove(units2.get(foe));
+			}
+			if (units1.isEmpty() || units2.isEmpty()) {
+				break;
+			}
+
+			if (units2.get(foe).life > 0) {
+				units2.get(foe).Attack(units1.get(a), units2, units1);
+				if (units1.get(a).life <= 0) {
+					units1.remove(units1.get(a));
+				}
+				if (units1.isEmpty() || units2.isEmpty()) {
+					break;
+				}
+			}
+		}
+		
+		System.out.println("战斗结束 - " + units1);
+		System.out.println(units2);
+
+		if (units1.isEmpty()) {
+			System.out.println("You lose!!!!");
+			return true;
+		}
+		else {
+			System.out.println("You win!!!!");
+			return false;
+		}
+	}
+	
 	public static void fightTest2() {
 
 		LinkedList<Unit> units1 = new LinkedList<Unit>();
@@ -50,11 +108,11 @@ public class UnitFight {
 			System.out.println("第一队剩余" + units1.size() + "人， 第二队" + units2.size() +"人");
 
 			System.out.println("输入单位编号 [1 ~ " + units1.size() + "]:");
-			Scanner scanner1 = new Scanner(System.in);
+			scanner1 = new Scanner(System.in);
 			int a = scanner1.nextInt() - 1;
 			
 			System.out.println("输入敌人编号:[1 ~ " + units2.size() + "]:");
-			Scanner scanner2 = new Scanner(System.in);
+			scanner2 = new Scanner(System.in);
 			int foe = scanner2.nextInt() - 1;
 			
 			units1.get(a).Attack(units2.get(foe), units1, units2);
@@ -87,7 +145,7 @@ public class UnitFight {
 		}
 	}
 
-	public static Hero createUnits(LinkedList<Unit> units) {
+	public static void createUnits(LinkedList<Unit> units) {
 		Hero hero;
 		Random rand = new Random();
 		{
@@ -118,7 +176,41 @@ public class UnitFight {
 
 			}
 		}
-		return hero;
+		//return hero;
+	}
+	
+	public static void createArmy(LinkedList<Unit> units) {
+		Hero hero;
+		Random rand = new Random();
+		{
+			if (rand.nextInt(2) < 1) {
+				hero = new Summoner("召唤师",
+						SUMMONER_ATTACK_MIN + rand.nextInt(SUMMONER_ATTACK_MAX - SUMMONER_ATTACK_MIN + 1),
+						SUMMONER_DEFENSE, SUMMONER_LIFE);
+				System.out.println("召唤师" + "Attack:" + ((Unit) hero).getAttack() + " Defense:"
+						+ ((Unit) hero).getDefense() + " Life:" + ((Unit) hero).getLife());
+			} else {
+				hero = new Soilder("战士",
+						SOLDIER_ATTACK_MIN + rand.nextInt(SOLDIER_ATTACK_MAX - SOLDIER_ATTACK_MIN + 1), SOLDIER_DEFENSE,
+						SOLDIER_LIFE);
+				System.out.println("战士" + "Attack:" + ((Unit) hero).getAttack() + " Defense:"
+						+ ((Unit) hero).getDefense() + " Life:" + ((Unit) hero).getLife());
+			}
+			units.add((Unit) hero);
+
+			for (int i = 1; i <= 5; i++) {
+				if (rand.nextInt(3) == 0) {
+					units.add(new Unit("unit" + "-" + i, UNIT_ATTACK, UNIT_DEFENSE, UNIT_LIFE));
+				} else if (rand.nextInt(2) == 1) {
+					units.add(new RangeUnit("range" + "-" + i, RANGE_UNIT_ATTACK, RANGE_DEFENSE, RANGE_LIFE));
+				} else {
+					units.add(new ShieldUnit("shield" + "-" + i, SHIELD_UNIT_ATTACK, SHIELD_DEFENSE,
+							SHIELD_LIFE));
+				}
+
+			}
+		}
+		//return hero;
 	}
 }
 

@@ -138,9 +138,21 @@ public class GameClient {
 			choose = getUserInputInRange(1, 2, scanner);
 			switch (choose) {
 			case 1:
-				// TODO before random game
-				processRandomGame(input, output, scanner);
+				if (userInfo.getArmy().isEmpty()) {
+					System.out.println("Create new army.");
+					UnitFight.createArmy(userInfo.getArmy());
+					System.out.println("Your army: " + userInfo.getArmy());
+				} 
+				
+				System.out.println("Start random battle");
+				processRandomGame(scanner);
+				
 				// TODO after random game
+				if (processRandomGame(scanner) == true) {
+					
+				} else {
+					
+				}
 				next = MenuEnum.UserPage;
 				break;
 			case 2:
@@ -172,10 +184,13 @@ public class GameClient {
 		return response;
 	}
 
-	private boolean processRandomGame(DataInputStream input, DataOutputStream output, Scanner scanner) {
-		// TODO get enemy from server
-		// UnitFight.fight(userInfo.getUnit)
-		return true;
+	private boolean processRandomGame(Scanner scanner) {
+		boolean a = UnitFight.fight(userInfo.getArmy());
+		if (a == true) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private UserInfo getUserInfo(DataInputStream input, DataOutputStream output) {

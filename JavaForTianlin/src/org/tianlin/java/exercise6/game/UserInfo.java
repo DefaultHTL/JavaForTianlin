@@ -28,6 +28,11 @@ public class UserInfo {
 	private String username;
 	private String password;
 	private int money;
+	/*
+	 * TODO
+	 * experience
+	 * List<Unit>
+	 */
 
 	public String getUsername() {
 		return username;

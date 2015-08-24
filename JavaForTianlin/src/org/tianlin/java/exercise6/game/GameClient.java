@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.InputMismatchException;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 import org.tianlin.java.exercise6.game.battle.UnitFight;
@@ -119,7 +120,7 @@ public class GameClient {
 				break;
 			case 2:
 				// TODO sign up
-				next = MenuEnum.None;
+				next = MenuEnum.Login;
 				break;
 			case 3:
 				next = MenuEnum.Exit;
@@ -146,13 +147,18 @@ public class GameClient {
 				
 				System.out.println("Start random battle");
 				processRandomGame(scanner);
+				int gain = 0;
 				
-				// TODO after random game
-				if (processRandomGame(scanner) == true) {
-					
-				} else {
-					
+				for (int b = 0; b <= processRandomGame(scanner).size() - 1; b++) {
+					gain += processRandomGame(scanner).get(b);
 				}
+				
+				userInfo.AddExperience(gain);
+				userInfo.AddMoney(gain * 2); 
+				
+				System.out.println("Your experience is " + userInfo.getExperience());
+				System.out.println("Your money is " + userInfo.getMoney());
+				
 				next = MenuEnum.UserPage;
 				break;
 			case 2:
@@ -184,13 +190,9 @@ public class GameClient {
 		return response;
 	}
 
-	private boolean processRandomGame(Scanner scanner) {
-		boolean a = UnitFight.fight(userInfo.getArmy());
-		if (a == true) {
-			return true;
-		} else {
-			return false;
-		}
+	private LinkedList<Integer> processRandomGame(Scanner scanner) {
+		LinkedList<Integer> a = UnitFight.fight(userInfo.getArmy());
+		return a;
 	}
 
 	private UserInfo getUserInfo(DataInputStream input, DataOutputStream output) {

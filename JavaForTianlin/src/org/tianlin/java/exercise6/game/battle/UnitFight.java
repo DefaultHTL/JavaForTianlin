@@ -31,11 +31,12 @@ public class UnitFight {
 	private static Scanner scanner2;
 
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		fightTest2();
-	}
+	}**/
 
-	public static boolean fight(LinkedList<Unit> units1) {
+	public static LinkedList<Integer> fight(LinkedList<Unit> units1) {
+		LinkedList<Integer> battleGain = new LinkedList<Integer>();
 		LinkedList<Unit> units2 = new LinkedList<Unit>();
 
 		createUnits(units2);
@@ -61,6 +62,11 @@ public class UnitFight {
 				
 			if (units2.get(foe).life <= 0) {
 				units2.remove(units2.get(foe));
+				if (units2.get(foe).getClass().getName() == "Hero") {
+					battleGain.add(5);
+				} else {
+					battleGain.add(2);
+				}
 			}
 			if (units1.isEmpty() || units2.isEmpty()) {
 				break;
@@ -82,15 +88,16 @@ public class UnitFight {
 
 		if (units1.isEmpty()) {
 			System.out.println("You lose!!!!");
-			return true;
+			battleGain.addLast(0);
 		}
 		else {
 			System.out.println("You win!!!!");
-			return false;
+			battleGain.addLast(10);
 		}
+		return battleGain;
 	}
 	
-	public static void fightTest2() {
+	/*public static void fightTest2() {
 
 		LinkedList<Unit> units1 = new LinkedList<Unit>();
 		LinkedList<Unit> units2 = new LinkedList<Unit>();
@@ -143,7 +150,7 @@ public class UnitFight {
 		else {
 			System.out.println("You win");
 		}
-	}
+	}**/
 
 	public static void createUnits(LinkedList<Unit> units) {
 		Hero hero;

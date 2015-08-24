@@ -61,4 +61,12 @@ public class UserInfo {
 	public LinkedList<Unit> getArmy() {
 		return army;
 	}
+	
+	public void AddExperience(int a) {
+		this.experience += a;
+	}
+	
+	public void AddMoney(int a) {
+		this.money += a;
+	}
 }

@@ -69,8 +69,10 @@ public class Log {
 			return;
 		}
 		String fileName = String.format("%s-%s.txt", type.toString(), FILE_DATE_FORMAT.format(new Date()));
-		i(TAG, "Initializing file logger: %s", fileName);
+		String firstLog = buildLogString(LEVEL_INFO, TAG, "Initializing file logger: %s", fileName);
+		log2Screen(firstLog);
 		fileLogger = new FileLogger(fileName);
+		log2file(firstLog);
 		new Thread(fileLogger).start();
 	}
 

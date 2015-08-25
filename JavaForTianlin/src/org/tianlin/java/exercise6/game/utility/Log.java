@@ -165,6 +165,7 @@ public class Log {
 				writer = new FileWriter(log);
 				while (!shutdown) {
 					writer.write(messageQueue.take() + "\n");
+					writer.flush(); // flush log immediately
 				}
 			} catch (InterruptedException | IOException e) {
 				e(TAG, "Error logging to log file, exception: %s!!", e.getMessage());

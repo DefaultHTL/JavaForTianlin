@@ -1,38 +1,41 @@
 package org.tianlin.java.exercise6.game;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.tianlin.java.exercise6.game.utility.Log;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class UserInfo {
 	private static final String TAG = "UserInfo";
-	private static final String SEPARATOR = ";";
 
-	/*
-	 * workaround
-	 */
-	public static UserInfo parse(String line) {
-		if (!line.isEmpty()) {
-			String[] segs = line.split(SEPARATOR);
-			Log.d(TAG, "Parse UserInfo: %s, %s, %s", segs[0], segs[1], segs[2]);
-			return new UserInfo(segs[0], segs[1], Integer.parseInt(segs[2]));
+	public static UserInfo parse(Element userElem) {
+		if (userElem == null)
+			return null;
+
+		String username, password;
+		username = userElem.getAttribute(GameServer.ATTR_USERNAME);
+		password = userElem.getAttribute(GameServer.ATTR_PASSWORD);
+		UserInfo info = new UserInfo(username, password);
+
+		NodeList heroNodes = userElem.getElementsByTagName(GameServer.TAG_HERO);
+		for (int i = 0; i < heroNodes.getLength(); i++) {
+			info.heros.add(HeroInfo.parse((Element) heroNodes.item(i)));
 		}
 
-		return null;
+		Log.i(TAG, "User parsed: %s", info.toString());
+		return info;
 	}
 
-	public UserInfo(String username, String password, int money) {
+	public UserInfo(String username, String password) {
 		this.username = username;
 		this.password = password;
-		this.money = money;
 	}
 
 	private String username;
 	private String password;
-	private int money;
-	/*
-	 * TODO
-	 * experience
-	 * List<Unit>
-	 */
+	private List<HeroInfo> heros = new LinkedList<HeroInfo>();
 
 	public String getUsername() {
 		return username;
@@ -42,7 +45,15 @@ public class UserInfo {
 		return password;
 	}
 
-	public int getMoney() {
-		return money;
+	public List<HeroInfo> getHeros() {
+		return heros;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("UserInfo{ ").append("username=").append(username).append(", password=").append(password)
+				.append(", hero count=").append(heros.size()).append(" }");
+		return builder.toString();
 	}
 }

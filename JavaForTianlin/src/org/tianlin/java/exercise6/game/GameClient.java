@@ -102,12 +102,7 @@ public class GameClient {
 		 * log in menu always shows first
 		 */
 		case Login:
-			p("\n********************************************************************************\n");
-			p("                     Welcome to Hero Fight! (version 1.0)\n\n");
-			p("                                1. Sign in\n");
-			p("                                2. Sign up\n");
-			p("                                3. Exit\n");
-			p("\n********************************************************************************\n");
+			pMenu("Sign in", "Sign up", "Exit");
 			choose = getUserInputInRange(1, 3, scanner);
 			switch (choose) {
 			case 1:
@@ -137,32 +132,29 @@ public class GameClient {
 			next = MenuEnum.None;
 			break;
 		case UserPage:
-			p("   Make your choice\n");
-			p("     1. Start random game\n");
-			p("     2. Exit\n");
-			choose = getUserInputInRange(1, 2, scanner);
+			pMenu("Start random game", "Shop", "Exit");
+			choose = getUserInputInRange(1, 3, scanner);
 			switch (choose) {
 			case 1:
 				/*
-				if (userInfo.getArmy().isEmpty()) {
-					System.out.println("Create new army.");
-					UnitFight.createArmy(userInfo.getArmy());
-					System.out.println("Your army: " + userInfo.getArmy());
-				}
-
-				System.out.println("Start random battle");
-				processRandomGame(scanner);
-
-				// TODO after random game
-				if (processRandomGame(scanner) == true) {
-
-				} else {
-
-				}
-				*/
+				 * if (userInfo.getArmy().isEmpty()) { System.out.println(
+				 * "Create new army.");
+				 * UnitFight.createArmy(userInfo.getArmy()); System.out.println(
+				 * "Your army: " + userInfo.getArmy()); }
+				 * 
+				 * System.out.println("Start random battle");
+				 * processRandomGame(scanner);
+				 * 
+				 * // TODO after random game if (processRandomGame(scanner) ==
+				 * true) {
+				 * 
+				 * } else {
+				 * 
+				 * }
+				 */
 				next = MenuEnum.UserPage;
 				break;
-			case 2:
+			case 3:
 				next = MenuEnum.Exit;
 				break;
 			}
@@ -206,14 +198,14 @@ public class GameClient {
 		return response;
 	}
 
-//	private boolean processRandomGame(Scanner scanner) {
-//		boolean a = UnitFight.fight(userInfo.getArmy());
-//		if (a == true) {
-//			return true;
-//		} else {
-//			return false;
-//		}
-//	}
+	// private boolean processRandomGame(Scanner scanner) {
+	// boolean a = UnitFight.fight(userInfo.getArmy());
+	// if (a == true) {
+	// return true;
+	// } else {
+	// return false;
+	// }
+	// }
 
 	private UserInfo getUserInfo(DataInputStream input, DataOutputStream output) {
 		// TODO
@@ -252,5 +244,14 @@ public class GameClient {
 	 */
 	private void p(String pattern, Object... args) {
 		System.out.printf(pattern, args);
+	}
+
+	private void pMenu(String... menuItems) {
+		p("\n********************************************************************************\n");
+		p("                     Welcome to Hero Fight! (version 1.0)\n\n");
+		for (int i = 0; i < menuItems.length; i++) {
+			p("                                %d. %s\n", i + 1, menuItems[i]);
+		}
+		p("\n********************************************************************************\n");
 	}
 }

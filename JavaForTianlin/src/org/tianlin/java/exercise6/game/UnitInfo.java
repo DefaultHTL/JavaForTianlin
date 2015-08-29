@@ -11,8 +11,8 @@ public class UnitInfo {
 			return null;
 
 		String name, type;
-		name = unitElem.getAttribute(GameServer.ATTR_USERNAME);
-		type = unitElem.getAttribute(GameServer.ATTR_PASSWORD);
+		name = unitElem.getAttribute(GameServer.ATTR_UNITNAME);
+		type = unitElem.getAttribute(GameServer.ATTR_UNITTYPE);
 		UnitInfo info = new UnitInfo(name, type);
 
 		Log.i(TAG, "Unit parsed: %s", info.toString());

@@ -69,6 +69,10 @@ public class HeroInfo {
 	public int getMoney() {
 		return money;
 	}
+	
+	public List<UnitInfo> getUnits() {
+		return units;
+	}
 
 	@Override
 	public String toString() {

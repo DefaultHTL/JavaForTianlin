@@ -207,9 +207,17 @@ public class GameClient {
 	// }
 	// }
 
+	/*
+	 * TODO query from server
+	 */
 	private UserInfo getUserInfo(DataInputStream input, DataOutputStream output) {
-		// TODO
-		return null;
+		UserInfo info = new UserInfo("u", "p");
+		HeroInfo info2 = new HeroInfo("hn", "ht", 0, 0);
+		UnitInfo info3 = new UnitInfo("un", "ut");
+		info2.getUnits().add(info3);
+		info.getHeros().add(info2);
+		
+		return info;
 	}
 
 	private void sendClientExit(DataOutputStream output) throws IOException {

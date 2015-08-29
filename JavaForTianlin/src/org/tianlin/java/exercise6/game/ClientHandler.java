@@ -84,6 +84,11 @@ public class ClientHandler implements Runnable {
 				// TODO succeed, do other things: record session and so on
 			}
 			break;
+		case SignUp:
+			boolean signResult = server.register(result.arguments[0].toString(), result.arguments[1].toString());
+			sendBack = CoDec.encode(CommandEnum.SignUpResult, signResult);
+			output.write(sendBack);
+			break;
 		case ClientExit:
 			Log.i(TAG, "Client says bye-bye, shutting down...");
 			exit = true;

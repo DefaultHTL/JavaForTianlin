@@ -10,6 +10,7 @@ public class CoDec {
 	private static final byte COMMAND_SIGN_IN = 0x01;
 	private static final byte COMMAND_SIGN_IN_RESULT = 0x02;
 	private static final byte COMMAND_SIGN_UP = 0x03;
+	private static final byte COMMAND_SIGN_UP_RESULT = 0x04;
 	private static final byte COMMAND_CLIENT_EXIT = 0x7F;
 
 	private static final byte SIGN_RESULT_SUCCEED = 0;
@@ -54,7 +55,10 @@ public class CoDec {
 			result = decodeSignInResult(bytes);
 			break;
 		case COMMAND_SIGN_UP:
-			// TODO
+			result = decodeSignUp(bytes);
+			break;
+		case COMMAND_SIGN_UP_RESULT:
+			result = decodeSignUpResult(bytes);
 			break;
 		case COMMAND_CLIENT_EXIT:
 			result = decodeClientExit(bytes);
@@ -93,7 +97,18 @@ public class CoDec {
 			}
 			break;
 		case SignUp:
-			// TODO
+			if (args.length == 2) {
+				ret = encodeSignUp(args[0].toString(), args[1].toString());
+			} else {
+				Log.e(TAG, "Encode SignUp with argument count %d!", args.length);
+			}
+			break;
+		case SignUpResult:
+			if (args.length == 1) {
+				ret = encodeSignUpResult((boolean) args[0]);
+			} else {
+				Log.e(TAG, "Encode SignUpResult with argument count %d!", args.length);
+			}
 			break;
 		case ClientExit:
 			ret = encodeClientExit();
@@ -112,6 +127,48 @@ public class CoDec {
 			Log.d(TAG, "Encode command '%s' into { %s }", command.name(), builder.substring(0, builder.length() - 2));
 		}
 		return ret;
+	}
+
+	/*
+	 * encode sign up command
+	 */
+	private static byte[] encodeSignUp(String username, String password) {
+		Log.i(TAG, "Encoding SignUp with username=%s, password=%s", username, password);
+		byte[] ub = username.getBytes();
+		byte[] pb = password.getBytes();
+		byte[] b = new byte[5 + ub.length + pb.length]; // 1+1+1+ub+1+pb+1
+		// command
+		b[0] = COMMAND_SIGN_UP;
+		// length including checksum
+		b[1] = (byte) (3 + ub.length + pb.length);
+		// length of user name
+		b[2] = (byte) ub.length;
+		// user name
+		System.arraycopy(ub, 0, b, 3, ub.length);
+		// length of password
+		b[ub.length + 3] = (byte) pb.length;
+		// password
+		System.arraycopy(pb, 0, b, ub.length + 4, pb.length);
+		// checksum
+		b[b.length - 1] = calculateChecksum(b);
+		return b;
+	}
+	
+	/*
+	 * encode sign in result
+	 */
+	private static byte[] encodeSignUpResult(boolean result) {
+		Log.i(TAG, "Encoding SignUpResult with result=%b", result);
+		byte[] b = new byte[4];
+		// command
+		b[0] = COMMAND_SIGN_UP_RESULT;
+		// length
+		b[1] = 2;
+		// result
+		b[2] = result ? SIGN_RESULT_SUCCEED : SIGN_RESULT_FAIL;
+		// checksum
+		b[3] = calculateChecksum(b);
+		return b;
 	}
 
 	/*
@@ -170,6 +227,16 @@ public class CoDec {
 		Log.i(TAG, "Decoding SignIn with username=%s, password=%s", username, password);
 		return new DecodeResult(true, CommandEnum.SignIn, username, password);
 	}
+	
+	/*
+	 * decode sign up command
+	 */
+	private static DecodeResult decodeSignUp(byte[] buffer) {
+		String username = new String(buffer, 3, buffer[2]);
+		String password = new String(buffer, 4 + buffer[2], buffer[3 + buffer[2]]);
+		Log.i(TAG, "Decoding SignUp with username=%s, password=%s", username, password);
+		return new DecodeResult(true, CommandEnum.SignUp, username, password);
+	}
 
 	/*
 	 * encode sign in result
@@ -195,6 +262,15 @@ public class CoDec {
 		boolean succeed = buffer[2] == SIGN_RESULT_SUCCEED;
 		Log.i(TAG, "Decoding SignInResult with result=%b", succeed);
 		return new DecodeResult(true, CommandEnum.SignInResult, succeed);
+	}
+	
+	/*
+	 * decode sign up result
+	 */
+	private static DecodeResult decodeSignUpResult(byte[] buffer) {
+		boolean succeed = buffer[2] == SIGN_RESULT_SUCCEED;
+		Log.i(TAG, "Decoding SignUpResult with result=%b", succeed);
+		return new DecodeResult(true, CommandEnum.SignUpResult, succeed);
 	}
 
 	/*

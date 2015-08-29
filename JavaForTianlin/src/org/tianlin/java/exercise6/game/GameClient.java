@@ -13,6 +13,7 @@ import org.tianlin.java.exercise6.game.utility.CoDec;
 import org.tianlin.java.exercise6.game.utility.CommandEnum;
 import org.tianlin.java.exercise6.game.utility.Log;
 import org.tianlin.java.exercise6.game.utility.CoDec.DecodeResult;
+import org.tianlin.java.exercise6.game.UserInfo;
 
 public class GameClient {
 	private static final String TAG = "GameClient";
@@ -118,8 +119,12 @@ public class GameClient {
 				}
 				break;
 			case 2:
-				// TODO sign up
-				next = MenuEnum.None;
+				if (processSignUp(input, output, scanner)) {
+					userInfo = getUserInfo(input, output);
+					next = MenuEnum.UserPage;
+				} else {
+					next = MenuEnum.Login;
+				}
 				break;
 			case 3:
 				next = MenuEnum.Exit;
@@ -166,6 +171,21 @@ public class GameClient {
 			next = MenuEnum.None;
 		}
 		return next;
+	}
+
+	private boolean processSignUp(DataInputStream input, DataOutputStream output, Scanner scanner) throws IOException {
+		p(" > Username: ");
+		String username = scanner.next();
+		p(" > Password: ");
+		String password = scanner.next();
+		
+		byte[] content = CoDec.encode(CommandEnum.SignUp, username, password);
+		output.write(content);
+		int length = input.read(buffer);
+		DecodeResult result = CoDec.decode(buffer, length);
+		boolean response = result.valid && (boolean) result.arguments[0];
+		p("Sign up %s!\n", response ? "succeed" : "fail, this username already exists.");
+		return response;
 	}
 
 	/*

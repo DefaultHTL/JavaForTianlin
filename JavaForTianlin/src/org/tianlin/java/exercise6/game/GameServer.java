@@ -190,6 +190,21 @@ public class GameServer {
 		Log.i(TAG, "Authenticate failed, username: %s and password: %s.", username, password);
 		return false;
 	}
+	
+	/*
+	 * Create new user
+	 */
+	public boolean register(String username, String password) {
+		UserInfo info = userInfos.get(username);
+		if (info != null) {
+			return false;
+		}
+		
+		info = new UserInfo(username, password);
+		userInfos.put(username, info);
+		Log.i(TAG, "Add new user, username: %s, password: %s.", username, password);
+		return true;
+	}
 
 	/*
 	 * Running on server side listening connections.

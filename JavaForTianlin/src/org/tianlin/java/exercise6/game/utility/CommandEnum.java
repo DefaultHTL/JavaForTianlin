@@ -4,6 +4,7 @@ public enum CommandEnum {
 	SignIn,
 	SignInResult,
 	SignUp,
+	SignUpResult,
 	
 	ClientExit,
 }
